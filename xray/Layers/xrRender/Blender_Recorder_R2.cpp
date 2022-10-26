@@ -117,6 +117,12 @@ void	CBlender_Compile::i_Filter			(u32 s, u32 _min, u32 _mip, u32 _mag)
 	i_Filter_Mip	(s,_mip);
 	i_Filter_Mag	(s,_mag);
 }
+
+void	CBlender_Compile::i_BorderColor	(u32 s, u32	color)
+{
+	RS.SetSAMP			(s,D3DSAMP_BORDERCOLOR,	color);
+}
+
 u32		CBlender_Compile::r_Sampler		(LPCSTR _name, LPCSTR texture, bool b_ps1x_ProjectiveDivide, u32 address, u32 fmin, u32 fmip, u32 fmag)
 {
 	dwStage					= i_Sampler	(_name);

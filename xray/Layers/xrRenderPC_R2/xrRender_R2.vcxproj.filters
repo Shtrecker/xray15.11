@@ -666,6 +666,9 @@
     <ClInclude Include="..\xrRenderDX9\imgui_impl_dx9.h">
       <Filter>imgui_render</Filter>
     </ClInclude>
+    <ClInclude Include="..\xrRender\r_sun_cascades.h">
+      <Filter>Core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\xrRender\xrRender_console.cpp">

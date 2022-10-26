@@ -11,6 +11,7 @@
 #include "blender_luminance.h"
 #include "blender_ssao.h"
 
+#include "../../xrEngine/Environment.h"
 #include "../xrRender/dxRenderDeviceRender.h"
 
 void	CRenderTarget::u_setrt			(const ref_rt& _1, const ref_rt& _2, const ref_rt& _3, IDirect3DSurface9* zb)
@@ -391,6 +392,7 @@ CRenderTarget::CRenderTarget		()
 		g_combine_VP.create					(dwDecl,		RCache.Vertex.Buffer(), RCache.QuadIB);
 		g_combine.create					(FVF::F_TL,		RCache.Vertex.Buffer(), RCache.QuadIB);
 		g_combine_2UV.create				(FVF::F_TL2uv,	RCache.Vertex.Buffer(), RCache.QuadIB);
+		g_combine_cuboid.create				(FVF::F_L,	RCache.Vertex.Buffer(), RCache.Index.Buffer());
 
 		u32 fvf_aa_blur				= D3DFVF_XYZRHW|D3DFVF_TEX4|D3DFVF_TEXCOORDSIZE2(0)|D3DFVF_TEXCOORDSIZE2(1)|D3DFVF_TEXCOORDSIZE2(2)|D3DFVF_TEXCOORDSIZE2(3);
 		g_aa_blur.create			(fvf_aa_blur,	RCache.Vertex.Buffer(), RCache.QuadIB);
@@ -674,4 +676,19 @@ void CRenderTarget::increment_light_marker()
 	//if (dwLightMarkerID>10)
 	if (dwLightMarkerID>255)
 		reset_light_marker(true);
+}
+
+bool CRenderTarget::need_to_render_sunshafts()
+{
+	if ( ! (RImplementation.o.advancedpp && ps_r_sun_shafts) )
+		return false;
+
+	{
+		CEnvDescriptor&	E = *g_pGamePersistent->Environment().CurrentEnv;
+		float fValue = E.m_fSunShaftsIntensity;
+		//	TODO: add multiplication by sun color here
+		if (fValue<0.0001) return false;
+	}
+
+	return true;
 }

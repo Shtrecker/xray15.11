@@ -20,6 +20,7 @@
 
 #include "../../xrEngine/irenderable.h"
 #include "../../xrEngine/fmesh.h"
+#include "../xrRender/r_sun_cascades.h"
 
 class dxRender_Visual;
 
@@ -135,6 +136,7 @@ public:
 	float														o_sun			;
 	IDirect3DQuery9*											q_sync_point[CHWCaps::MAX_GPUS];
 	u32															q_sync_count	;
+	xr_vector<sun::cascade>										m_sun_cascades;
 
 	bool														m_bMakeAsyncSS;
 private:
@@ -161,6 +163,11 @@ public:
 	void							render_sun					();
 	void							render_sun_near				();
 	void							render_sun_filtered			();
+
+	void							render_sun_cascade			(u32 cascade_ind);
+	void							init_cacades				();
+	void							render_sun_cascades			();	
+	
 	void							render_menu					();
 public:
 	ShaderElement*					rimp_select_sh_static		(dxRender_Visual	*pVisual, float cdist_sq);

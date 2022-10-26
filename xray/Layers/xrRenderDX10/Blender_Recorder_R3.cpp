@@ -103,7 +103,10 @@ void CBlender_Compile::i_dx10Filter(u32 s, u32 _min, u32 _mip, u32 _mag)
 	i_dx10Filter_Mip	(s,_mip);
 	i_dx10Filter_Mag	(s,_mag);
 }
-
+void CBlender_Compile::i_dx10BorderColor(u32 s, u32 color)
+{
+	RS.SetSAMP			(s,D3DSAMP_BORDERCOLOR,	color);
+}
 u32 CBlender_Compile::r_dx10Sampler(LPCSTR ResourceName)
 {
 	//	TEST
