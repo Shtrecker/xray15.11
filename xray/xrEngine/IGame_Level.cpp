@@ -90,6 +90,7 @@ BOOL IGame_Level::Load			(u32 dwNum)
 		pHUD					= (CCustomHUD*)NEW_INSTANCE	(CLSID_HUDMANAGER);
 
 	// Render-level Load
+	Render->level_Unload		();	
 	Render->level_Load			(LL_Stream);
 	// tscreate.FrameEnd			();
 	// Msg						("* S-CREATE: %f ms, %d times",tscreate.result,tscreate.count);
