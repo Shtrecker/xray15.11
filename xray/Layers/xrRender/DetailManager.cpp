@@ -250,7 +250,7 @@ void CDetailManager::UpdateVisibleM()
 	Fvector		EYE				= Device.vCameraPosition;
 	
 	CFrustum	View;
-	View.CreateFromMatrix		(Device.mFullTransform, FRUSTUM_P_LRTB + FRUSTUM_P_FAR);
+	View = RImplementation.ViewBase;
 
 	float fade_limit			= dm_fade;	fade_limit=fade_limit*fade_limit;
 	float fade_start			= 1.f;		fade_start=fade_start*fade_start;
