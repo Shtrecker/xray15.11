@@ -138,8 +138,15 @@ void CPHMovementControl::in_shedule_Update(u32 DT)
 
 void CPHMovementControl::Calculate(Fvector& vAccel,const Fvector& camDir,float /**ang_speed/**/,float jump,float /**dt/**/,bool /**bLight/**/)
 {
-	Fvector previous_position;previous_position.set(vPosition);
-	m_character->IPosition(vPosition);
+	//GSC: Position interpolation
+//	Fvector previous_position;previous_position.set(vPosition);
+//	m_character->IPosition(vPosition);
+	
+	//Shoker: Disabled position interpolation
+    Fvector previous_position { vPosition };
+    m_character->GetPosition(vPosition);
+	
+	
 	if(bExernalImpulse)
 	{
 		
