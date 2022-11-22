@@ -204,13 +204,15 @@ void CUICharacterInfo::InitCharacter(u16 id)
 	shared_str our_comm, enemy;
 	if ( CUICharacterInfo::get_actor_community( &our_comm, &enemy ) )
 	{
-		if ( xr_strcmp( our_comm, "actor" ) ) // !=
+		//if ( xr_strcmp( our_comm, "actor" ) )
+		// с этой строкой нельзя было показывать иконку актора
 		{
 			strcpy_s( community1, sizeof(community1), our_comm.c_str() );
 			strcat_s( community1, sizeof(community1), "_icon" );
 
 			strcpy_s( community2, sizeof(community2), our_comm.c_str() );
 			strcat_s( community2, sizeof(community2), "_wide" );
+			Msg("full icon name: [%s] ([%s])", community1, community2); // пока оставлю, чтобы можно было получить название под иконку актора
 
 			if ( m_icons[eCommunityIcon   ] ) { m_icons[eCommunityIcon   ]->InitTexture( community1 ); }
 			if ( m_icons[eCommunityBigIcon] ) { m_icons[eCommunityBigIcon]->InitTexture( community2 ); }
