@@ -102,7 +102,6 @@ void CUIHudStatesWnd::InitFromXml( CUIXml& xml, LPCSTR path )
 	m_lanim_name._set( xml.ReadAttrib( "indik_rad", 0, "light_anim", "" ) );
 
 	m_ui_weapon_sign_ammo = UIHelper::CreateStatic( xml, "static_ammo", this );
-	//m_ui_weapon_sign_ammo->SetEllipsis( CUIStatic::eepEnd, 2 );
 	
 	m_ui_weapon_icon = UIHelper::CreateStatic( xml, "static_wpn_icon", this );
 	m_ui_weapon_icon->SetShader( InventoryUtilities::GetEquipmentIconsShader() );
@@ -268,7 +267,10 @@ void CUIHudStatesWnd::UpdateActiveItemInfo( CActor* actor )
 			if ( str_count.size() > 5 )
 			{
 				pFont = pFont22;
+				m_ui_weapon_sign_ammo->SetTextY(4);
 			}
+			else
+				m_ui_weapon_sign_ammo->SetTextY(0);
 		}
 		m_ui_weapon_sign_ammo->SetFont( pFont );
 	}
@@ -314,6 +316,8 @@ void CUIHudStatesWnd::SetAmmoIcon( const shared_str& sect_name )
 		// all others ammo (1x1, 1x2) will be not scaled (original picture)
 		float h = gridHeight * INV_GRID_HEIGHT * 0.65f;
 		float w = gridWidth  * INV_GRID_WIDTH  * 0.65f;
+		float posx_16 = 8.33f;
+		float posx = 10.0f;
 		if ( gridWidth > 2.01f )
 		{
 			w = INV_GRID_WIDTH * 1.5f;
@@ -322,11 +326,11 @@ void CUIHudStatesWnd::SetAmmoIcon( const shared_str& sect_name )
 		bool is_16x10 = UI()->is_16_9_mode();
 		if ( gridWidth < 1.01f )
 		{
-			m_ui_weapon_icon->SetTextureOffset( (is_16x10)? 8.33f : 10.0f, 0.0f );
+			m_ui_weapon_icon->SetTextureOffset((is_16x10)?posx_16:posx, 0.0f);
 		}
 		else
 		{
-			m_ui_weapon_icon->SetTextureOffset( 0.0f, 0.0f );
+			m_ui_weapon_icon->SetTextureOffset( 0.0f, 2.0f );
 		}
 
 
@@ -443,12 +447,12 @@ void CUIHudStatesWnd::UpdateZones()
 			if ( dist_to_zone < rad_zone )
 			{
 				fRelPow *= 0.3f;
-				fRelPow *= ( 2.5f - 2.0f * power ); // çâóê çàâèñèò îò ñèëû çîíû
+				fRelPow *= ( 2.5f - 2.0f * power ); // Ð·Ð²ÑƒÐº Ð·Ð°Ð²Ð¸ÑÐ¸Ñ‚ Ð¾Ñ‚ ÑÐ¸Ð»Ñ‹ Ð·Ð¾Ð½Ñ‹
 			}
 		}
 		clamp( fRelPow, 0.0f, 1.0f );
 
-		//îïðåäåëèòü òåêóùóþ ÷àñòîòó ñðàáàòûâàíèÿ ñèãíàëà
+		//Ð¾Ð¿Ñ€ÐµÐ´ÐµÐ»Ð¸Ñ‚ÑŒ Ñ‚ÐµÐºÑƒÑ‰ÑƒÑŽ Ñ‡Ð°ÑÑ‚Ð¾Ñ‚Ñƒ ÑÑ€Ð°Ð±Ð°Ñ‚Ñ‹Ð²Ð°Ð½Ð¸Ñ ÑÐ¸Ð³Ð½Ð°Ð»Ð°
 		zone_info.cur_period = zone_type->freq.x + (zone_type->freq.y - zone_type->freq.x) * (fRelPow * fRelPow);
 		
 		//string256	buff_z;
