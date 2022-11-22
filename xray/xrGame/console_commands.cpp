@@ -9,6 +9,7 @@
 #include "level.h"
 #include "script_debugger.h"
 #include "ai_debug.h"
+#include "ai_object_location.h"
 #include "alife_simulator.h"
 #include "game_cl_base.h"
 #include "game_cl_single.h"
@@ -44,6 +45,7 @@
 #include "cameralook.h"
 #include "character_hit_animations_params.h"
 #include "inventory_upgrade_manager.h"
+#include "xrServer_Objects_ALife_Monsters.h"
 
 #include "GameSpy/GameSpy_Full.h"
 #include "GameSpy/GameSpy_Patching.h"
@@ -1070,6 +1072,109 @@ struct CCC_JumpToLevel : public IConsole_Command {
 		Msg							("! There is no level \"%s\" in the game graph!",level);
 	}
 };
+
+class CCC_UI_Reload : public IConsole_Command
+{
+public:
+	CCC_UI_Reload(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = TRUE; };
+	virtual void Execute(LPCSTR args)
+	{
+		if (&HUD())
+			HUD().OnScreenRatioChanged();// перезагружаем UI через эту команду
+	}
+};
+class CCC_Spawn : public IConsole_Command
+{
+public:
+    CCC_Spawn(LPCSTR N)
+        : IConsole_Command(N) {};
+    virtual void Execute(LPCSTR args)
+    {
+        if (!g_pGameLevel)
+            return;
+        if (!Level().CurrentControlEntity())
+            return;
+		int count = 1;
+		string256 string;
+		string[0] = 0;
+		sscanf(args, "%s %d", &string, &count);
+        if (!pSettings->section_exist(string))
+		{
+            Msg("! Section [%s] isn`t exist...", string);
+            return;
+        }
+        if (!pSettings->line_exist(string, "class"))
+		{
+            Msg("!Failed to load section!");
+            return;
+        }
+		collide::rq_result RQ = Level().GetPickResult(Device.vCameraPosition, Device.vCameraDirection, 1000.0f, Level().CurrentControlEntity());
+        if (auto *tpGame = smart_cast<game_sv_Single*>(Level().Server->game))
+			for (int i = 0; i < count; ++i)
+			{
+				CSE_Abstract* entity = tpGame->alife().spawn_item(string, Fvector(Device.vCameraPosition).add(Fvector(Device.vCameraDirection).mul(RQ.range)), Actor()->ai_location().level_vertex_id(), Actor()->ai_location().game_vertex_id(), ALife::_OBJECT_ID(-1));
+				if (CSE_ALifeAnomalousZone* anom = smart_cast<CSE_ALifeAnomalousZone*>(entity))
+				{
+					CShapeData::shape_def		_shape;
+					_shape.data.sphere.P.set	(0.0f,0.0f,0.0f);
+					_shape.data.sphere.R		= 3.0f;
+					_shape.type					= CShapeData::cfSphere;
+					anom->assign_shapes(&_shape,1);
+					anom->m_space_restrictor_type	= RestrictionSpace::eRestrictorTypeNone;
+				}
+			}
+
+    }
+    virtual void fill_tips(vecTips& tips, u32 mode)
+    {
+        for (auto sect : pSettings->sections()) {
+            if (sect->line_exist("class"))
+                tips.push_back(sect->Name.c_str());
+        }
+    }
+    virtual void Info(TInfo& I) { strcpy(I, "spawn_entities"); }
+};
+
+class CCC_Spawn_to_inventory : public IConsole_Command
+{
+public:
+	CCC_Spawn_to_inventory(LPCSTR N)
+		: IConsole_Command(N) {};
+	virtual void Execute(LPCSTR args)
+	{
+		if (!g_pGameLevel)
+			return;
+		if (!Level().CurrentControlEntity())
+			return;
+
+		int count = 1;
+		string256 string;
+		string[0] = 1;
+		sscanf(args, "%s %d", &string, &count);
+
+		if (!pSettings->section_exist(string))
+		{
+			Msg("! Section [%s] isn`t exist...", string);
+			return;
+		}
+		if (!pSettings->line_exist(string, "class") || !pSettings->line_exist(string, "inv_weight") || !pSettings->line_exist(string, "visual"))
+		{
+			Msg("!Failed to load section!");
+			return;
+		}
+		if (auto* pCurActor = smart_cast<CActor*>(Level().CurrentControlEntity()))
+			for (int i = 0; i < count; ++i)
+				Level().spawn_item(string, pCurActor->Position(), pCurActor->ai_location().level_vertex_id(), pCurActor->ID());
+	}
+	virtual void fill_tips(vecTips& tips, u32 mode)
+	{
+		for (auto sect : pSettings->sections()) {
+			if (sect->line_exist("class") && sect->line_exist("inv_weight"))
+				tips.push_back(sect->Name.c_str());
+		}
+	}
+	virtual void Info(TInfo& I) { strcpy(I, "name,team,squad,group"); }
+};
 #endif
 class CCC_Script : public IConsole_Command {
 public:
@@ -1736,10 +1841,13 @@ CMD4(CCC_Integer,			"hit_anims_tune",						&tune_hit_anims,		0, 1);
 #endif // DEBUG
 
 #ifndef MASTER_GOLD
-	CMD1(CCC_JumpToLevel,	"jump_to_level"		);
-	CMD3(CCC_Mask,			"g_god",			&psActorFlags,	AF_GODMODE	);
-	CMD3(CCC_Mask,			"g_unlimitedammo",	&psActorFlags,	AF_UNLIMITEDAMMO);
-	CMD1(CCC_TimeFactor, "time_factor");
+	CMD1(CCC_JumpToLevel,		"jump_to_level"										);
+	CMD1(CCC_UI_Reload,			"ui_reload"											);
+	CMD3(CCC_Mask,				"g_god",			&psActorFlags,	AF_GODMODE		);
+	CMD3(CCC_Mask,				"g_unlimitedammo",	&psActorFlags,	AF_UNLIMITEDAMMO);
+	CMD1(CCC_Spawn,				"g_spawn"											);		
+	CMD1(CCC_Spawn_to_inventory,"g_spawn_to_inventory"								);
+	CMD1(CCC_TimeFactor,		"time_factor"										);
 #endif // MASTER_GOLD
 	CMD1(CCC_Script,		"run_script");
 	CMD1(CCC_ScriptCommand,	"run_string");

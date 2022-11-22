@@ -37,6 +37,8 @@
 #include "../xrEngine/CameraManager.h"
 #include "level_sounds.h"
 #include "car.h"
+#include "../xrEngine/GameMtlLib.h"
+#include "../xrEngine/IGame_Persistent.h"
 #include "trade_parameters.h"
 #include "game_cl_base_weapon_usage_statistic.h"
 #include "MainMenu.h"
@@ -726,7 +728,7 @@ void CLevel::OnFrame	()
 	m_ph_commander_scripts->update		();
 //	autosave_manager().update			();
 
-	//ïðîñ÷èòàòü ïîëåò ïóëü
+	//Ð¿Ñ€Ð¾ÑÑ‡Ð¸Ñ‚Ð°Ñ‚ÑŒ Ð¿Ð¾Ð»ÐµÑ‚ Ð¿ÑƒÐ»ÑŒ
 	Statistic.TEST0.Begin		();
 	BulletManager().CommitRenderSet		();
 	Statistic.TEST0.End			();
@@ -781,11 +783,11 @@ void CLevel::OnRender()
 		return;
 
 	Game().OnRender();
-	//îòðèñîâàòü òðàññû ïóëü
+	//Ð¾Ñ‚Ñ€Ð¸ÑÐ¾Ð²Ð°Ñ‚ÑŒ Ñ‚Ñ€Ð°ÑÑÑ‹ Ð¿ÑƒÐ»ÑŒ
 	//Statistic.TEST1.Begin();
 	BulletManager().Render();
 	//Statistic.TEST1.End();
-	//îòðèñîâàòü èíòåðôåéc ïîëüçîâàòåëÿ
+	//Ð¾Ñ‚Ñ€Ð¸ÑÐ¾Ð²Ð°Ñ‚ÑŒ Ð¸Ð½Ñ‚ÐµÑ€Ñ„ÐµÐ¹c Ð¿Ð¾Ð»ÑŒÐ·Ð¾Ð²Ð°Ñ‚ÐµÐ»Ñ
 	HUD().RenderUI();
 
 #ifdef DEBUG
@@ -1296,4 +1298,41 @@ CZoneList::~CZoneList()
 {
 	clear();
 	destroy();
+}
+
+ICF static BOOL GetPickDist_Callback(collide::rq_result& result, LPVOID params)
+{
+    collide::rq_result* RQ = (collide::rq_result*)params;
+    if (result.O)
+    {
+        if(Actor())
+        {
+            if (result.O == Actor())
+                return TRUE;
+            if (Actor()->Holder())
+            {
+                CCar* car = smart_cast<CCar*>(Actor()->Holder());
+                if (car && result.O == car)
+                    return TRUE;
+            }
+        }
+    }
+    else
+    {
+        CDB::TRI* T = Level().ObjectSpace.GetStaticTris() + result.element;
+        SGameMtl* pMtl = GMLib.GetMaterialByIdx(T->material);
+        if (pMtl && (pMtl->Flags.is(SGameMtl::flPassable) || pMtl->Flags.is(SGameMtl::flActorObstacle)))
+            return TRUE;
+    }
+    *RQ = result;
+    return FALSE;
+}
+
+collide::rq_result CLevel::GetPickResult(Fvector pos, Fvector dir, float range, CObject* ignore)
+{
+    collide::rq_result        RQ; RQ.set(NULL, range, -1);
+    collide::rq_results        RQR; 
+    collide::ray_defs    RD(pos, dir, RQ.range, CDB::OPT_FULL_TEST, collide::rqtBoth);
+    Level().ObjectSpace.RayQuery(RQR, RD, GetPickDist_Callback, &RQ, NULL, ignore);
+    return RQ;
 }

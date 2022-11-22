@@ -191,6 +191,8 @@ public:
 	CZoneList*					hud_zones_list;
 	CZoneList*					create_hud_zones_list();
 
+	collide::rq_result GetPickResult(Fvector pos, Fvector dir, float range, CObject* ignore);
+
 #ifdef BATTLEYE
 	BattlEyeSystem				battleye_system;
 	virtual bool				TestLoadBEClient();
@@ -313,7 +315,7 @@ public:
 	CLevel();
 	virtual ~CLevel();
 
-	//названияе текущего уровня
+	//РЅР°Р·РІР°РЅРёСЏРµ С‚РµРєСѓС‰РµРіРѕ СѓСЂРѕРІРЅСЏ
 	virtual shared_str			name					() const;
 			shared_str			version					() const { return map_data.m_map_version.c_str(); } //this method can be used ONLY from CCC_ChangeGameType
 
@@ -321,12 +323,12 @@ public:
 
 	//gets the time from the game simulation
 	
-	//возвращает время в милисекундах относительно начала игры
+	//РІРѕР·РІСЂР°С‰Р°РµС‚ РІСЂРµРјСЏ РІ РјРёР»РёСЃРµРєСѓРЅРґР°С… РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅРѕ РЅР°С‡Р°Р»Р° РёРіСЂС‹
 	ALife::_TIME_ID		GetStartGameTime		();
 	ALife::_TIME_ID		GetGameTime				();
-	//возвращает время для энвайронмента в милисекундах относительно начала игры
+	//РІРѕР·РІСЂР°С‰Р°РµС‚ РІСЂРµРјСЏ РґР»СЏ СЌРЅРІР°Р№СЂРѕРЅРјРµРЅС‚Р° РІ РјРёР»РёСЃРµРєСѓРЅРґР°С… РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅРѕ РЅР°С‡Р°Р»Р° РёРіСЂС‹
 	ALife::_TIME_ID		GetEnvironmentGameTime	();
-	//игровое время в отформатированном виде
+	//РёРіСЂРѕРІРѕРµ РІСЂРµРјСЏ РІ РѕС‚С„РѕСЂРјР°С‚РёСЂРѕРІР°РЅРЅРѕРј РІРёРґРµ
 	void				GetGameDateTime			(u32& year, u32& month, u32& day, u32& hours, u32& mins, u32& secs, u32& milisecs);
 
 	float				GetGameTimeFactor		();
@@ -355,7 +357,7 @@ public:
 	CGameTaskManager&		GameTaskManager				() const	{return *m_game_task_manager;}
 	void					OnAlifeSimulatorLoaded		();
 	void					OnAlifeSimulatorUnLoaded	();
-	//работа с пулями
+	//СЂР°Р±РѕС‚Р° СЃ РїСѓР»СЏРјРё
 protected:	
 	CBulletManager*		m_pBulletManager;
 public:
