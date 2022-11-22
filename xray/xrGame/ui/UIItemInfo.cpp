@@ -266,7 +266,7 @@ void CUIItemInfo::InitItem(CInventoryItem* pInvItem, CInventoryItem* pCompareIte
 	}
 	if(UIItemImage)
 	{
-		// Çàãðóæàåì êàðòèíêó
+		// Ð—Ð°Ð³Ñ€ÑƒÐ¶Ð°ÐµÐ¼ ÐºÐ°Ñ€Ñ‚Ð¸Ð½ÐºÑƒ
 		UIItemImage->SetShader				(InventoryUtilities::GetEquipmentIconsShader());
 
 		Irect item_grid_rect				= pInvItem->GetInvGridRect();
@@ -292,9 +292,7 @@ void CUIItemInfo::InitItem(CInventoryItem* pInvItem, CInventoryItem* pCompareIte
 
 void CUIItemInfo::TryAddConditionInfo( CInventoryItem& pInvItem, CInventoryItem* pCompareItem )
 {
-	CWeapon*		weapon = smart_cast<CWeapon*>( &pInvItem );
-	CCustomOutfit*	outfit = smart_cast<CCustomOutfit*>( &pInvItem );
-	if ( weapon || outfit )
+	if (pInvItem.IsUsingCondition())
 	{
 		UIConditionWnd->SetInfo( pCompareItem, pInvItem );
 		UIDesc->AddWindow( UIConditionWnd, false );
