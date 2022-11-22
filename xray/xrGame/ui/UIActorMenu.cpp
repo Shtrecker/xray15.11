@@ -21,6 +21,7 @@
 #include "../ai/monsters/BaseMonster/base_monster.h"
 #include "UIInventoryUtilities.h"
 #include "game_cl_base.h"
+#include <dinput.h>
 
 #include "UICursor.h"
 #include "UICellItem.h"
@@ -1000,7 +1001,21 @@ bool CUIActorMenu::OnKeyboard(int dik, EUIMessages keyboard_action)
 			GetHolder()->StartStopMenu( this, true );
 		}
 		return true;
-	}	
+	}
+
+	if (WINDOW_KEY_PRESSED == keyboard_action)
+	{
+		{
+			if (DIK_NUMPAD7 == dik && CurrentIItem() && CurrentIItem()->IsUsingCondition())
+			{
+				CurrentIItem()->ChangeCondition(-0.05f);
+			}
+			else if (DIK_NUMPAD8 == dik && CurrentIItem() && CurrentIItem()->IsUsingCondition())
+			{
+				CurrentIItem()->ChangeCondition(0.05f);
+			}
+		}
+	}
 
 	if( inherited::OnKeyboard(dik,keyboard_action) )return true;
 
