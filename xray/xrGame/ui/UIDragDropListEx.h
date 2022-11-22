@@ -112,6 +112,7 @@ public:
 			CUICellItem*	GetItemIdx			(u32 idx);
 	virtual CUICellItem*	RemoveItem			(CUICellItem* itm, bool force_root);
 			void			CreateDragItem		(CUICellItem* itm);
+			void			clear_select_armament();
 
 			void			DestroyDragItem		();
 			void			ClearAll			(bool bDestroy);	
@@ -153,11 +154,11 @@ public:
 protected:
 	virtual		void			Draw				();
 
-	IC const	Ivector2&		CellsCapacity		()								{return m_cellsCapacity;};	
+	IC const	Ivector2&		CellsCapacity		()								{return m_cellsCapacity;};
 				void			SetCellsCapacity	(const Ivector2& c);
-	IC const	Ivector2&		CellSize			()								{return m_cellSize;};	
+	IC const	Ivector2&		CellSize			()								{return m_cellSize;};
 				void			SetCellSize			(const Ivector2& new_sz);
-	IC const	Ivector2&		CellsSpacing		()								{return m_cellSpacing;};	
+	IC const	Ivector2&		CellsSpacing		()								{return m_cellSpacing;};
 				void			SetCellsSpacing		(const Ivector2& new_sz);
 				Ivector2		TopVisibleCell		();
 				CUICell&		GetCellAt			(const Ivector2& pos);
@@ -177,4 +178,5 @@ protected:
 				void			Grow				();
 				void			Shrink				();
 				void			ClearAll			(bool bDestroy);
+				void			clear_select_armament();
 };
