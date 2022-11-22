@@ -5,7 +5,7 @@
   <PropertyGroup>
     <IncludePath>$(SolutionDir)SDK\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)SDK\libraries\x64;$(LibraryPath)</LibraryPath>
-    <OutDir>$(SolutionDir)intermediate\$(Platform)-$(Configuration)\</OutDir>
+    <OutDir>$(SolutionDir)Bin\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)intermediate\$(Platform)-$(Configuration)\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup>

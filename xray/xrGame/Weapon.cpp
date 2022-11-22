@@ -22,6 +22,7 @@
 #include "static_cast_checked.hpp"
 #include "clsid_game.h"
 #include "ui/UIWindow.h"
+#include "WeaponMagazinedWGrenade.h"
 
 #define WEAPON_REMOVE_TIME		60000
 #define ROTATION_TIME			0.25f
@@ -1758,4 +1759,10 @@ bool CWeapon::MovingAnimAllowedNow()
 bool CWeapon::IsHudModeNow()
 {
 	return (HudItemData()!=NULL);
+}
+
+bool CWeapon::IsGrenadeLauncherMode()
+{
+    CWeaponMagazinedWGrenade* maggl = smart_cast<CWeaponMagazinedWGrenade*>(this);
+    return !!(maggl && maggl->m_bGrenadeMode);
 }

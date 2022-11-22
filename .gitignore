@@ -4,3 +4,5 @@
 *.user
 *.VC.opendb
 *.VC.db
+/Bin
+/.git

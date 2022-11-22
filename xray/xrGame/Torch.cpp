@@ -85,6 +85,11 @@ void CTorch::Load(LPCSTR section)
 		m_sounds.LoadSound(section,"snd_night_vision_idle", "NightVisionIdleSnd", SOUND_TYPE_ITEM_USING);
 		m_sounds.LoadSound(section,"snd_night_vision_broken", "NightVisionBrokenSnd", SOUND_TYPE_ITEM_USING);
 	}
+
+	if (pSettings->line_exist(section, "snd_turn_on"))
+		m_sounds.LoadSound(section, "snd_turn_on", "sndTurnOn", SOUND_TYPE_ITEM_USING);
+	if (pSettings->line_exist(section, "snd_turn_off"))
+		m_sounds.LoadSound(section, "snd_turn_off", "sndTurnOff", SOUND_TYPE_ITEM_USING);
 }
 
 void CTorch::SwitchNightVision()
@@ -156,20 +161,6 @@ void CTorch::UpdateSwitchNightVision   ()
 {
 	if(!m_bNightVisionEnabled) return;
 	if (OnClient()) return;
-
-
-	/*if(m_bNightVisionOn)
-	{
-		m_NightVisionChargeTime			-= Device.fTimeDelta;
-
-		if(m_NightVisionChargeTime<0.f)
-			SwitchNightVision(false);
-	}
-	else
-	{
-		m_NightVisionChargeTime			+= Device.fTimeDelta;
-		clamp(m_NightVisionChargeTime, 0.f, m_NightVisionRechargeTime);
-	}*/
 }
 
 
@@ -182,6 +173,21 @@ void CTorch::Switch()
 
 void CTorch::Switch	(bool light_on)
 {
+	CActor* pActor = smart_cast<CActor*>(H_Parent());
+	if (pActor)
+	{
+		if (light_on && !m_switched_on)
+		{
+			if (m_sounds.FindSoundItem("SndTurnOn", false))
+				m_sounds.PlaySound("SndTurnOn", pActor->Position(), NULL, !!pActor->HUDview());
+		}
+		else if (!light_on && m_switched_on)
+		{
+			if (m_sounds.FindSoundItem("SndTurnOff", false))
+				m_sounds.PlaySound("SndTurnOff", pActor->Position(), NULL, !!pActor->HUDview());
+		}
+	}
+
 	m_switched_on			= light_on;
 	if (can_use_dynamic_lights())
 	{

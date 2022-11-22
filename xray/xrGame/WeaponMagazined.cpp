@@ -136,10 +136,11 @@ void CWeaponMagazined::FireStart		()
 					SwitchState(eFire);
 				}
 			}
-		}else 
+		}
+		else 
 		{
-			if(eReload!=GetState()) 
-				OnMagazineEmpty();
+			if(GetState() == eIdle) 
+				switch2_Empty();
 		}
 	}else
 	{//misfire
@@ -153,10 +154,6 @@ void CWeaponMagazined::FireStart		()
 void CWeaponMagazined::FireEnd() 
 {
 	inherited::FireEnd();
-
-	CActor	*actor = smart_cast<CActor*>(H_Parent());
-	if(!iAmmoElapsed && actor && GetState()!=eReload) 
-		Reload();
 }
 
 void CWeaponMagazined::Reload() 
@@ -230,18 +227,6 @@ bool CWeaponMagazined::IsAmmoAvailable()
 
 void CWeaponMagazined::OnMagazineEmpty() 
 {
-
-	if(GetState() == eIdle) 
-	{
-		OnEmptyClick			();
-		return;
-	}
-
-	if( GetNextState() != eMagEmpty && GetNextState() != eReload)
-	{
-		SwitchState(eMagEmpty);
-	}
-
 	inherited::OnMagazineEmpty();
 }
 
@@ -284,14 +269,17 @@ void CWeaponMagazined::UnloadMagazine(bool spawn_ammo)
 		}
 		if(l_it->second && !unlimited_ammo()) SpawnAmmo(l_it->second, l_it->first);
 	}
+
+	if (IsMisfire() && !IsGrenadeLauncherMode())
+		bMisfire = false;
+
+	if (GetState() == eIdle)
+		SwitchState(eIdle);
 }
 
 void CWeaponMagazined::ReloadMagazine() 
 {
 	m_dwAmmoCurrentCalcFrame = 0;	
-
-	//устранить осечку при перезарядке
-	if(IsMisfire())	bMisfire = false;
 	
 	if (!m_bLockType) {
 		m_ammoName	= NULL;
@@ -448,9 +436,7 @@ void CWeaponMagazined::UpdateSounds	()
 	Fvector P						= get_LastFP();
 	m_sounds.SetPosition("sndShow", P);
 	m_sounds.SetPosition("sndHide", P);
-//. nah	m_sounds.SetPosition("sndShot", P);
 	m_sounds.SetPosition("sndReload", P);
-//. nah	m_sounds.SetPosition("sndEmptyClick", P);
 }
 
 void CWeaponMagazined::state_Fire(float dt)
@@ -603,10 +589,22 @@ void CWeaponMagazined::OnAnimationEnd(u32 state)
 {
 	switch(state) 
 	{
-		case eReload:	ReloadMagazine();	SwitchState(eIdle);	break;	// End of reload animation
-		case eHiding:	SwitchState(eHidden);   break;	// End of Hide
-		case eShowing:	SwitchState(eIdle);		break;	// End of Show
-		case eIdle:		switch2_Idle();			break;  // Keep showing idle
+		case eReload:
+		{
+			ReloadMagazine();
+			SwitchState(eIdle);
+			if(!IsGrenadeLauncherMode())
+				bMisfire = false;
+		}break;	// End of reload animation
+		case eHiding:
+			SwitchState(eHidden);
+		break;	// End of Hide
+		case eShowing:
+			SwitchState(eIdle);
+		break;	// End of Show
+		case eIdle:
+			switch2_Idle();
+		break;  // Keep showing idle
 	}
 	inherited::OnAnimationEnd(state);
 }
@@ -666,17 +664,10 @@ void CWeaponMagazined::switch2_Fire	()
 
 void CWeaponMagazined::switch2_Empty()
 {
-	OnZoomOut();
-	
-	if(!TryReload())
-	{
-		OnEmptyClick();
-	}
-	else
-	{
-		inherited::FireEnd();
-	}
+	OnEmptyClick();
+    SwitchState(eIdle);
 }
+
 void CWeaponMagazined::PlayReloadSound()
 {
 	PlaySound	("sndReload",get_LastFP());
@@ -710,6 +701,7 @@ void CWeaponMagazined::switch2_Hidden()
 	signal_HideComplete		();
 	RemoveShotEffector		();
 }
+
 void CWeaponMagazined::switch2_Showing()
 {
 	PlaySound			("sndShow",get_LastFP());
@@ -730,7 +722,7 @@ bool CWeaponMagazined::Action(s32 cmd, u32 flags)
 	case kWPN_RELOAD:
 		{
 			if(flags&CMD_START) 
-				if(iAmmoElapsed < iMagazineSize || IsMisfire()) 
+				if(iAmmoElapsed < iMagazineSize || IsMisfire() && !IsGrenadeLauncherMode()) 
 					Reload();
 		} 
 		return true;

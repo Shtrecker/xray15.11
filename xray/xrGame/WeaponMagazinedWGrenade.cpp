@@ -154,7 +154,7 @@ void CWeaponMagazinedWGrenade::OnShot		()
 
 bool CWeaponMagazinedWGrenade::SwitchMode() 
 {
-	bool bUsefulStateToSwitch = ((eIdle==GetState())||(eHidden==GetState())||(eMisfire==GetState())||(eMagEmpty==GetState())) && (!IsPending());
+	bool bUsefulStateToSwitch = (GetState() == eIdle && !IsPending() && !IsZoomed());
 
 	if(!bUsefulStateToSwitch)
 		return false;
@@ -206,12 +206,9 @@ bool CWeaponMagazinedWGrenade::Action(s32 cmd, u32 flags)
 		if(flags&CMD_START)
 		{
 			if(iAmmoElapsed)
-				LaunchGrenade		();
+				LaunchGrenade();
 			else
-				Reload				();
-
-			if(GetState() == eIdle) 
-				OnEmptyClick			();
+				Reload();
 		}
 		return					true;
 	}
@@ -238,29 +235,7 @@ void CWeaponMagazinedWGrenade::state_Fire(float dt)
 
 	//режим стрельбы подствольника
 	if(m_bGrenadeMode)
-	{
-		/*
-		fTime					-=dt;
-		while (fTime<=0 && (iAmmoElapsed>0) && (IsWorking() || m_bFireSingleShot))
-		{
-			++m_iShotNum;
-			OnShot			();
-			
-			// Ammo
-			if(Local()) 
-			{
-				VERIFY				(m_magazine.size());
-				m_magazine.pop_back	();
-				--iAmmoElapsed;
-			
-				VERIFY((u32)iAmmoElapsed == m_magazine.size());
-			}
-		}
-		UpdateSounds				();
-		if(m_iShotNum == m_iQueueSize) 
-			FireEnd();
-		*/
-	} 
+	{} 
 	//режим стрельбы очередями
 	else 
 		inherited::state_Fire(dt);
@@ -636,15 +611,9 @@ void CWeaponMagazinedWGrenade::PlayAnimIdle()
 				CEntity::SEntityState st;
 				pActor->g_State(st);
 				if(st.bSprint)
-				{
 					act_state = 1;
-					PlayHUDMotion("anm_idle_sprint", TRUE, NULL,GetState());
-				}else
-				if(pActor->AnyMove())
-				{
+				else if(pActor->AnyMove())
 					act_state = 2;
-					PlayHUDMotion("anm_idle_moving", TRUE, NULL, GetState());
-				}
 			}
 
 			if(m_bGrenadeMode)
@@ -658,7 +627,8 @@ void CWeaponMagazinedWGrenade::PlayAnimIdle()
 				if(act_state==2)
 					PlayHUDMotion("anm_idle_moving_g", TRUE, NULL,GetState());
 
-			}else
+			}
+			else
 			{
 				if(act_state==0)
 					PlayHUDMotion("anm_idle_w_gl", FALSE, NULL, GetState());
