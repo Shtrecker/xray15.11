@@ -60,6 +60,38 @@ bool CUITrackBar::OnMouse(float x, float y, EUIMessages mouse_action)
 		{
 			m_b_mouse_capturer = false;
 		}
+	case WINDOW_MOUSE_WHEEL_UP:
+		{
+			if(m_b_is_float)
+			{
+				m_f_val -= GetInvert()?-m_f_step:m_f_step;
+				clamp(m_f_val, m_f_min, m_f_max);
+			}
+			else
+			{
+				m_i_val -= GetInvert()?-m_i_step:m_i_step;
+				clamp(m_i_val, m_i_min, m_i_max);
+			}
+
+			UpdatePos			();
+		}
+		break;
+	case WINDOW_MOUSE_WHEEL_DOWN:
+		{
+			if(m_b_is_float)
+			{
+				m_f_val += GetInvert()?-m_f_step:m_f_step;
+				clamp(m_f_val, m_f_min, m_f_max);
+			}
+			else
+			{
+				m_i_val += GetInvert()?-m_i_step:m_i_step;
+				clamp(m_i_val, m_i_min, m_i_max);
+			}
+
+			UpdatePos();
+		}
+		break;
 	};
 	return true;
 }
