@@ -662,13 +662,15 @@ void CUIActorMenu::highlight_item_slot(CUICellItem* cell_item)
 	CCustomOutfit* outfit = smart_cast<CCustomOutfit*>(item);
 	CCustomDetector* detector = smart_cast<CCustomDetector*>(item);
 	CArtefact* artefact = smart_cast<CArtefact*>(item);
+	CWeaponBinoculars* binoc = smart_cast<CWeaponBinoculars*>(item);
+	CWeaponKnife* knife = smart_cast<CWeaponKnife*>(item);
 	
 	if(pistol)
 	{
 		m_InvSlot2Highlight->Show(true);
 		return;
 	}
-	if (weapon && !pistol)
+	if (weapon && !pistol && !(knife || binoc))
 	{
 		m_InvSlot3Highlight->Show(true);
 		return;
@@ -749,7 +751,7 @@ void CUIActorMenu::highlight_ammo_for_weapon( PIItem weapon_item, CUIDragDropLis
 	CWeapon* weapon = smart_cast<CWeapon*>(weapon_item);
 	CWeaponBinoculars* binoc = smart_cast<CWeaponBinoculars*>(weapon_item);
 	CWeaponKnife* knife = smart_cast<CWeaponKnife*>(weapon_item);
-	if ( !weapon )
+	if ( !weapon || binoc || knife)
 	{
 		return;
 	}
@@ -824,7 +826,7 @@ void CUIActorMenu::highlight_weapons_for_ammo( PIItem ammo_item, CUIDragDropList
 		CWeapon* weapon = smart_cast<CWeapon*>(item);
 		CWeaponBinoculars* binoc = smart_cast<CWeaponBinoculars*>(item);
 		CWeaponKnife* knife = smart_cast<CWeaponKnife*>(item);
-		if ( !weapon || !binoc || !knife )
+		if ( !weapon )
 		{
 			continue;
 		}
@@ -833,7 +835,7 @@ void CUIActorMenu::highlight_weapons_for_ammo( PIItem ammo_item, CUIDragDropList
 		xr_vector<shared_str>::iterator ite = weapon->m_ammoTypes.end();
 		for ( ; itb != ite; ++itb )
 		{
-			if ( ammo_name._get() == (*itb)._get() )
+			if ( ammo_name._get() == (*itb)._get() && !(binoc||knife) )
 			{
 				ci->m_select_armament = true;
 				break; // for itb
@@ -1009,10 +1011,12 @@ bool CUIActorMenu::OnKeyboard(int dik, EUIMessages keyboard_action)
 			if (DIK_NUMPAD7 == dik && CurrentIItem() && CurrentIItem()->IsUsingCondition())
 			{
 				CurrentIItem()->ChangeCondition(-0.05f);
+				CurrentItem()->UpdateConditionProgressBar();
 			}
 			else if (DIK_NUMPAD8 == dik && CurrentIItem() && CurrentIItem()->IsUsingCondition())
 			{
 				CurrentIItem()->ChangeCondition(0.05f);
+				CurrentItem()->UpdateConditionProgressBar();
 			}
 		}
 	}
