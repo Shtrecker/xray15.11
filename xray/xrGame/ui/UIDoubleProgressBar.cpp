@@ -46,7 +46,6 @@ void CUIDoubleProgressBar::InitFromXml( CUIXml& xml_doc, LPCSTR path )
 		color = CUIXmlInit::GetColor(xml_doc, buf, 0, 0xff);
 		m_progress_two.m_maxColor.set(color);
 	}
-	m_more_color = CUIXmlInit::GetColor( xml_doc, buf, 0, color_rgba(   0, 255, 0, 255 ) );
 
 	m_progress_one.SetRange( 0.0f, 100.0f );
 	m_progress_two.SetRange( 0.0f, 100.0f );
