@@ -173,7 +173,10 @@ CEnvironment::CEnvironment	() :
 	p_sky_color		= config->r_float							( "environment","sky_color" );
 	p_sun_color		= config->r_float							( "environment","sun_color" );
 	p_fog_color		= config->r_float							( "environment","fog_color" );
-	m_dynamicSun = config->line_exist("environment", "dynamic_sun") ? config->r_bool("environment", "dynamic_sun") : true;
+	useDynamicSunDir = READ_IF_EXISTS(pSettings, r_bool, "sun", "dynamic_sun_dir", true);
+	sunDirAzimuth = READ_IF_EXISTS(pSettings, r_float, "sun", "sun_dir_azimuth", 0.0f);
+    clamp(sunDirAzimuth, 0.0f, 360.0f);
+    sunDirAzimuth *= (PI / 180.0f);
 
 	xr_delete		(config);
 }
@@ -472,7 +475,7 @@ void CEnvironment::OnFrame()
 	lerp					(current_weight);
 
 	//	Igor. Dynamic sun position. 
-	if (m_dynamicSun)
+	if (useDynamicSunDir)
 		calculate_dynamic_sun_dir();
 
 #ifndef MASTER_GOLD
@@ -548,7 +551,7 @@ void CEnvironment::calculate_dynamic_sun_dir()
 		cosAZ	= (_sin(deg2rad(D))-_sin(LatitudeR)*_cos(SZA))/sin_SZA_X_cos_Latitude;
 
 	clamp( cosAZ, -1.0f, 1.0f);
-	float AZ = acosf(cosAZ) - PI;
+	float AZ = acosf(cosAZ) + sunDirAzimuth;
 
 	const Fvector2 minAngle = Fvector2().set(deg2rad(1.0f), deg2rad(3.0f));
 

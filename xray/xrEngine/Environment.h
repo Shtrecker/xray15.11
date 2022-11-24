@@ -329,6 +329,8 @@ public:
 	bool					m_paused;
 #endif // #ifdef _EDITOR
 
+	float sunDirAzimuth;
+
 	CInifile*				m_ambients_config;
 	CInifile*				m_sound_channels_config;
 	CInifile*				m_effects_config;
@@ -360,7 +362,7 @@ public:
 	float						p_sky_color;
 	float						p_sun_color;
 	float						p_fog_color;
-	bool m_dynamicSun;
+	bool						useDynamicSunDir;
 };
 
 #undef INGAME_EDITOR_VIRTUAL
