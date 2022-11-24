@@ -20,14 +20,10 @@
 
 #include "inventory_item.h"
 #include "inventory.h"
+#include "HUDManager.h"
+#include "ui/UIMainIngameWnd.h"
 
 #include "../Include/xrRender/UIRender.h"
-
-
-u32 C_ON_ENEMY		D3DCOLOR_RGBA(0xff,0,0,0x80);
-u32 C_ON_NEUTRAL	D3DCOLOR_RGBA(0xff,0xff,0x80,0x80);
-u32 C_ON_FRIEND		D3DCOLOR_RGBA(0,0xff,0,0x80);
-
 
 #define C_DEFAULT	D3DCOLOR_RGBA(0xff,0xff,0xff,0x80)
 #define C_SIZE		0.025f
@@ -90,7 +86,7 @@ ICF static BOOL pick_trace_callback(collide::rq_result& result, LPVOID params)
 		return FALSE;
 	}else
 	{
-		//получить треугольник и узнать его материал
+		//РїРѕР»СѓС‡РёС‚СЊ С‚СЂРµСѓРіРѕР»СЊРЅРёРє Рё СѓР·РЅР°С‚СЊ РµРіРѕ РјР°С‚РµСЂРёР°Р»
 		CDB::TRI* T		= Level().ObjectSpace.GetStaticTris()+result.element;
 		
 		SGameMtl* mtl = GMLib.GetMaterialByIdx(T->material);
@@ -161,13 +157,32 @@ void CHUDTarget::Render()
 	Fvector4			pt;
 	Device.mFullTransform.transform(pt, p2);
 	pt.y = -pt.y;
-	//PT.transform		(p2,Device.mFullTransform);
-	//float				di_size = C_SIZE/powf(PT.p.w,.2f);
 	float				di_size = C_SIZE/powf(pt.w,.2f);
+	
+	float hud_info_x	= HUD().GetUI()->UIMainIngameWnd->hud_info_x * 0.025f;
+	float hud_info_y	= HUD().GetUI()->UIMainIngameWnd->hud_info_y * 0.025f;
 
+	int hud_info_r_e	= HUD().GetUI()->UIMainIngameWnd->hud_info_r_e;
+	int hud_info_g_e	= HUD().GetUI()->UIMainIngameWnd->hud_info_g_e;
+	int hud_info_b_e	= HUD().GetUI()->UIMainIngameWnd->hud_info_b_e;
+	int hud_info_a_e	= HUD().GetUI()->UIMainIngameWnd->hud_info_a_e;
+
+	int hud_info_r_n	= HUD().GetUI()->UIMainIngameWnd->hud_info_r_n;
+	int hud_info_g_n	= HUD().GetUI()->UIMainIngameWnd->hud_info_g_n;
+	int hud_info_b_n	= HUD().GetUI()->UIMainIngameWnd->hud_info_b_n;
+	int hud_info_a_n	= HUD().GetUI()->UIMainIngameWnd->hud_info_a_n;
+
+	int hud_info_r_f	= HUD().GetUI()->UIMainIngameWnd->hud_info_r_f;
+	int hud_info_g_f	= HUD().GetUI()->UIMainIngameWnd->hud_info_g_f;
+	int hud_info_b_f	= HUD().GetUI()->UIMainIngameWnd->hud_info_b_f;
+	int hud_info_a_f	= HUD().GetUI()->UIMainIngameWnd->hud_info_a_f;
+
+	u32 C_ON_ENEMY		D3DCOLOR_RGBA(hud_info_r_e, hud_info_g_e, hud_info_b_e, hud_info_a_e);
+	u32 C_ON_NEUTRAL	D3DCOLOR_RGBA(hud_info_r_n, hud_info_g_n, hud_info_b_n, hud_info_a_n);
+	u32 C_ON_FRIEND		D3DCOLOR_RGBA(hud_info_r_f, hud_info_g_f, hud_info_b_f, hud_info_a_f);
 	CGameFont* F		= HUD().Font().pFontGraffiti19Russian;
 	F->SetAligment		(CGameFont::alCenter);
-	F->OutSetI			(0.f,0.05f);
+	F->OutSetI			(0.f + hud_info_x, 0.05f + hud_info_y);
 
 	if (psHUD_Flags.test(HUD_CROSSHAIR_DIST))
 		F->OutSkip		();
@@ -215,7 +230,18 @@ void CHUDTarget::Render()
 					{
 						if (fuzzyShowInfo>0.5f && l_pI->NameItem())
 						{
+							float hud_info_item_x  = HUD().GetUI()->UIMainIngameWnd->hud_info_item_x;
+							float hud_info_item_y1 = HUD().GetUI()->UIMainIngameWnd->hud_info_item_y1;
+							float hud_info_item_y2 = HUD().GetUI()->UIMainIngameWnd->hud_info_item_y2;
+							float hud_info_item_y3 = HUD().GetUI()->UIMainIngameWnd->hud_info_item_y3;
+							int height = l_pI->GetInvGridRect().y2;
+							float pos = hud_info_item_y1;
 							F->SetColor	(subst_alpha(C,u8(iFloor(255.f*(fuzzyShowInfo-0.5f)*2.f))));
+							if (height == 2)
+								pos = hud_info_item_y2;
+							else if (height == 3)
+								pos = hud_info_item_y3; // Hrust: 4 cells by height is not normal)
+							F->OutSetI(0.f + hud_info_x + hud_info_item_x, 0.05f + hud_info_y + pos);
 							F->OutNext	("%s",l_pI->NameItem());
 						}
 						fuzzyShowInfo += SHOW_INFO_SPEED*Device.fTimeDelta;
@@ -270,7 +296,7 @@ void CHUDTarget::Render()
 		F->OutNext		("%4.1f - %4.2f - %d",PP.RQ.range, PP.power, PP.pass);
 	}
 
-	//отрендерить кружочек или крестик
+	//РѕС‚СЂРµРЅРґРµСЂРёС‚СЊ РєСЂСѓР¶РѕС‡РµРє РёР»Рё РєСЂРµСЃС‚РёРє
 	if(!m_bShowCrosshair)
 	{
 		
@@ -305,7 +331,7 @@ void CHUDTarget::Render()
 		UIRender->FlushPrimitive();
 
 	}else{
-		//отрендерить прицел
+		//РѕС‚СЂРµРЅРґРµСЂРёС‚СЊ РїСЂРёС†РµР»
 		HUDCrosshair.cross_color	= C;
 		HUDCrosshair.OnRender		();
 	}
