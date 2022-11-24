@@ -25,8 +25,8 @@
 
 extern const LPCSTR g_inventory_upgrade_xml;
 
-#define  INV_GRID_WIDTH2  40
-#define  INV_GRID_HEIGHT2 40
+#define  INV_GRID_WIDTH2  80
+#define  INV_GRID_HEIGHT2 80
 
 CUIItemInfo::CUIItemInfo()
 {
@@ -277,8 +277,8 @@ void CUIItemInfo::InitItem(CInventoryItem* pInvItem, CInventoryItem* pCompareIte
 		UIItemImage->SetStretchTexture		(true);
 		Frect v_r							= {	0.0f, 
 												0.0f, 
-												float(item_grid_rect.x2*INV_GRID_WIDTH2),	
-												float(item_grid_rect.y2*INV_GRID_HEIGHT2)};
+												float(item_grid_rect.x2*INV_GRID_WIDTH2 / 2),
+												float(item_grid_rect.y2*INV_GRID_HEIGHT2 / 2)};
 		if(UI()->is_16_9_mode())
 			v_r.x2 /= 1.2f;
 

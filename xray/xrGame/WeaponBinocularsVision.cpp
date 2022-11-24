@@ -2,6 +2,8 @@
 #include "WeaponBinocularsVision.h"
 #include "WeaponBinoculars.h"
 #include "ui\UIFrameWindow.h"
+#include "ui/UIMainIngameWnd.h"
+#include "HUDManager.h"
 #include "entity_alive.h"
 #include "visual_memory_manager.h"
 #include "actor.h"
@@ -16,10 +18,6 @@
 #include "../xrEngine/igame_persistent.h"
 
 #define RECT_SIZE	11
-
-extern u32 C_ON_ENEMY;
-extern u32 C_ON_NEUTRAL;
-extern u32 C_ON_FRIEND;
 
 struct FindVisObjByObject{
 	const CObject*			O;
@@ -98,6 +96,23 @@ void SBinocVisibleObj::Update()
 	mx.x		= (1.f + mx.x)/2.f * UI_BASE_WIDTH;
 	mn.y		= (1.f - mn.y)/2.f * UI_BASE_HEIGHT;
 	mx.y		= (1.f - mx.y)/2.f * UI_BASE_HEIGHT;
+
+	int hud_info_r_e	= HUD().GetUI()->UIMainIngameWnd->hud_info_r_e;
+	int hud_info_g_e	= HUD().GetUI()->UIMainIngameWnd->hud_info_g_e;
+	int hud_info_b_e	= HUD().GetUI()->UIMainIngameWnd->hud_info_b_e;
+
+	int hud_info_r_n	= HUD().GetUI()->UIMainIngameWnd->hud_info_r_n;
+	int hud_info_g_n	= HUD().GetUI()->UIMainIngameWnd->hud_info_g_n;
+	int hud_info_b_n	= HUD().GetUI()->UIMainIngameWnd->hud_info_b_n;
+
+	int hud_info_r_f	= HUD().GetUI()->UIMainIngameWnd->hud_info_r_f;
+	int hud_info_g_f	= HUD().GetUI()->UIMainIngameWnd->hud_info_g_f;
+	int hud_info_b_f	= HUD().GetUI()->UIMainIngameWnd->hud_info_b_f;
+
+	u32 C_ON_ENEMY		D3DCOLOR_RGBA(hud_info_r_e, hud_info_g_e, hud_info_b_e, 0x80);
+	u32 C_ON_NEUTRAL	D3DCOLOR_RGBA(hud_info_r_n, hud_info_g_n, hud_info_b_n, 0x80);
+	u32 C_ON_FRIEND		D3DCOLOR_RGBA(hud_info_r_f, hud_info_g_f, hud_info_b_f, 0x80);
+
 
 	if(mx.x-mn.x<RECT_SIZE)
 		mx.x = mn.x+RECT_SIZE;
