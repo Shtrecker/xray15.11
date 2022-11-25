@@ -457,7 +457,6 @@ bool CUIMainIngameWnd::OnKeyboardPress(int dik)
 #ifndef MASTER_GOLD
 	test_key(dik);
 #endif // #ifndef MASTER_GOLD
-/*
 	if(Level().IR_GetKeyState(DIK_LSHIFT) || Level().IR_GetKeyState(DIK_RSHIFT))
 	{
 //		switch(dik)
@@ -492,7 +491,6 @@ bool CUIMainIngameWnd::OnKeyboardPress(int dik)
 			break;
 		}
 	}
-*/
 	return false;
 }
 
