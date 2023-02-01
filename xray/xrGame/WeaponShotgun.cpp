@@ -14,8 +14,7 @@ CWeaponShotgun::CWeaponShotgun()
 }
 
 CWeaponShotgun::~CWeaponShotgun()
-{
-}
+{}
 
 void CWeaponShotgun::net_Destroy()
 {
@@ -39,23 +38,28 @@ void CWeaponShotgun::Load	(LPCSTR section)
 
 }
 
-void CWeaponShotgun::switch2_Fire	()
+void CWeaponShotgun::switch2_Fire()
 {
 	inherited::switch2_Fire	();
 	bWorking = false;
 }
 
-
-bool CWeaponShotgun::Action			(s32 cmd, u32 flags) 
+bool CWeaponShotgun::SwitchAmmoType(u32 flags)
 {
-	if(inherited::Action(cmd, flags)) return true;
+	if (IsTriStateReload() && iAmmoElapsed == iMagazineSize)
+		return false;
 
-	if(	m_bTriStateReload && GetState()==eReload &&
-		cmd==kWPN_FIRE && flags&CMD_START &&
-		m_sub_state==eSubstateReloadInProcess		)//остановить перезагрузку
+	return inherited::SwitchAmmoType(flags);
+}
+
+bool CWeaponShotgun::Action(s32 cmd, u32 flags) 
+{
+	if(inherited::Action(cmd, flags))
+		return true;
+
+	if(m_bTriStateReload && GetState() == eReload && cmd == kWPN_FIRE && !bStopReloadSignal && flags&CMD_START && (m_sub_state == eSubstateReloadBegin || m_sub_state == eSubstateReloadInProcess))//остановить перезарядку
 	{
-		AddCartridge(1);
-		m_sub_state = eSubstateReloadEnd;
+		bStopReloadSignal = true;
 		return true;
 	}
 	return false;
@@ -64,23 +68,34 @@ bool CWeaponShotgun::Action			(s32 cmd, u32 flags)
 void CWeaponShotgun::OnAnimationEnd(u32 state) 
 {
 	if(!m_bTriStateReload || state != eReload)
+	{
+        bStopReloadSignal = false;
 		return inherited::OnAnimationEnd(state);
+	}
 
-	switch(m_sub_state){
-		case eSubstateReloadBegin:{
-			m_sub_state = eSubstateReloadInProcess;
+	switch(m_sub_state)
+	{
+		case eSubstateReloadBegin:
+		{
+            if (bStopReloadSignal)
+				m_sub_state = eSubstateReloadEnd;
+			else
+				m_sub_state = eSubstateReloadInProcess;
 			SwitchState(eReload);
 		}break;
 
-		case eSubstateReloadInProcess:{
-			if( 0 != AddCartridge(1) ){
+		case eSubstateReloadInProcess:
+		{
+			if(0 != AddCartridge(1) || bStopReloadSignal)
+			{
 				m_sub_state = eSubstateReloadEnd;
 			}
 			SwitchState(eReload);
 		}break;
 
-		case eSubstateReloadEnd:{
-			m_sub_state = eSubstateReloadBegin;
+		case eSubstateReloadEnd:
+		{
+			bStopReloadSignal = false;
 			SwitchState(eIdle);
 		}break;
 		
@@ -105,7 +120,9 @@ void CWeaponShotgun::TriStateReload()
 
 void CWeaponShotgun::OnStateSwitch	(u32 S)
 {
-	if(!m_bTriStateReload || S != eReload){
+	if(!m_bTriStateReload || S != eReload)
+	{
+        bStopReloadSignal = false;
 		inherited::OnStateSwitch(S);
 		return;
 	}
